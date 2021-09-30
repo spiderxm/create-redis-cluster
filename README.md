@@ -18,3 +18,4 @@ Boom cluster is up and running
 
 Made by Mrigank anand
 
+For more info on redis cluster refer official [Redis Cluster](https://github.com/spiderxm/Cyclo)
