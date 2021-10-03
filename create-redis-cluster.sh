@@ -1,69 +1,38 @@
+# start redis-cluster in default configuration
+
+# create folder for all redis configuration
 mkdir cluster-configuration
-mkdir cluster-configuration/7000
-mkdir cluster-configuration/7001
-mkdir cluster-configuration/7002
-mkdir cluster-configuration/7003
-mkdir cluster-configuration/7004
-mkdir cluster-configuration/7005
 
-touch cluster-configuration/7000/redis.conf
-touch cluster-configuration/7001/redis.conf
-touch cluster-configuration/7002/redis.conf
-touch cluster-configuration/7003/redis.conf
-touch cluster-configuration/7004/redis.conf
-touch cluster-configuration/7005/redis.conf
+# create required directories
+for port in 7000 7001 7002 7003 7004 7005; do
+  mkdir cluster-configuration/$port
+done
 
-echo "port 7000
-cluster-enabled yes
-cluster-config-file nodes.conf
-cluster-node-timeout 5000
-appendonly yes" > cluster-configuration/7000/redis.conf
+# create configuration files - for redis servers
+for port in 7000 7001 7002 7003 7004 7005; do
+  touch cluster-configuration/$port/redis.conf
+done
 
-echo "port 7001
-cluster-enabled yes
-cluster-config-file nodes.conf
-cluster-node-timeout 5000
-appendonly yes" > cluster-configuration/7001/redis.conf
+# add configuration to conf files
+for port in 7000 7001 7002 7003 7004 7005; do
+  echo "port $port
+  cluster-enabled yes
+  cluster-config-file nodes.conf
+  cluster-node-timeout 5000
+  appendonly yes" >cluster-configuration/$port/redis.conf
+done
 
-echo "port 7002
-cluster-enabled yes
-cluster-config-file nodes.conf
-cluster-node-timeout 5000
-appendonly yes" > cluster-configuration/7002/redis.conf
+# give required permissions to files to be executed
+for port in 7000 7001 7002 7003 7004 7005; do
+  chmod +x server/run-server-$port.sh
+done
 
-echo "port 7003
-cluster-enabled yes
-cluster-config-file nodes.conf
-cluster-node-timeout 5000
-appendonly yes" > cluster-configuration/7003/redis.conf
-
-echo "port 7004
-cluster-enabled yes
-cluster-config-file nodes.conf
-cluster-node-timeout 5000
-appendonly yes" > cluster-configuration/7004/redis.conf
-
-echo "port 7005
-cluster-enabled yes
-cluster-config-file nodes.conf
-cluster-node-timeout 5000
-appendonly yes" > cluster-configuration/7005/redis.conf
-
-chmod +x server/run-server-7000.sh
-chmod +x server/run-server-7001.sh
-chmod +x server/run-server-7002.sh
-chmod +x server/run-server-7003.sh
-chmod +x server/run-server-7004.sh
-chmod +x server/run-server-7005.sh
-./server/run-server-7000.sh &
-./server/run-server-7001.sh &
-./server/run-server-7002.sh &
-./server/run-server-7003.sh &
-./server/run-server-7004.sh &
-./server/run-server-7005.sh &
-
+# start server
+for port in 7000 7001 7002 7003 7004 7005; do
+  ./server/run-server-$port.sh &
+done
 
 sleep 5
 
+# start redis cluster
 redis-cli --cluster create 127.0.0.1:7000 127.0.0.1:7001 127.0.0.1:7002 127.0.0.1:7003 127.0.0.1:7004 127.0.0.1:7005 --cluster-replicas 1
-
